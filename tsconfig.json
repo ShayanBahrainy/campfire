@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es6",
+    "outDir": "./dist",
+    "lib": ["DOM", "ES2023", "ESNext"],
+    "skipLibCheck": true,
+}
+}

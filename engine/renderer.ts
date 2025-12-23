@@ -178,30 +178,36 @@ export class Renderer {
     //Our spatial maps are 2d arrays where first dimension is x, second is y, and the values are arrays of objects at that coordinate
     //Spatial Map = [[[Object1], [Object2]], [[Object3], [Object4,Object5]]
     let SpatialMap = this.calculateSpatialMap()
-    for (let Ys of SpatialMap) {
-        if (!Ys) {
+    for (let X of SpatialMap) {
+        if (!X) {
             continue
         }
-        for (let Y of Ys) {
+        for (let Y of X) {
+            if (!Y) {
+                continue
+            }
             this.narrowPhaseChecks(Y)
         }
     }
   }
 
   draw(renderData: RenderComponent[]) {
-    let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D()
+    let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d")
     for (let object of renderData) {
         switch (object.type) {
             case "text":
                 ctx.font = "18px Times New Roman"
                 ctx.textAlign = "center"
                 ctx.textBaseline = "middle"
-                ctx.fillStyle = "#8aea92"
+                ctx.fillStyle = "#000000"
                 ctx.fillText(object.text!,object.x,object.y)
                 break;
             case "rectangle":
                 ctx.fillStyle = object.fillStyle!
+                ctx.beginPath()
                 ctx.rect(object.x, object.y, object.width!, object.height!)
+                ctx.closePath()
+                ctx.fill()
                 break;
             case "circle":
                 ctx.fillStyle = object.fillStyle!

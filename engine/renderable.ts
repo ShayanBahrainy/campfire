@@ -1,4 +1,4 @@
-import { Shape } from './shape.ts';
+import { Shape } from './shape.js';
 import { Point } from './point.js'
 
 export interface Renderable {

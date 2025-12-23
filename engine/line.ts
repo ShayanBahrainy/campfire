@@ -1,7 +1,7 @@
 import { Renderer } from "./renderer.js"
-import { Renderable } from "./renderable.ts"
-import { Point } from "./point.ts"
-import { Shape } from "./shape.ts";
+import { Renderable } from "./renderable.js"
+import { Point } from "./point.js"
+import { Shape } from "./shape.js";
 
 export class LineInert implements Renderable{
    x: number;
