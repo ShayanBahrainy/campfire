@@ -4,11 +4,13 @@
   "description": "A game centered around a campfire.",
   "main": "index.js",
   "scripts": {
+    "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Shayan",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^39.2.7"
+    "electron": "^39.2.7",
+    "typescript": "^5.9.3"
   }
 }
