@@ -63,6 +63,10 @@ export class Renderer {
         render.x = object.x
         render.y = object.y
 
+        if (object.rotation) {
+            render.rotation = object.rotation
+        }
+
         if (object.shape == "rectangle"){
             render.type = "rectangle"
             render.width = object.width
@@ -85,11 +89,8 @@ export class Renderer {
             render.type = "polygon"
             render.apothem = object.apothem
             render.vertexes = object.vertexes
-            if (Object.hasOwn(object, "rotation")) {
-                render.rotation = object.rotation
-            }
         }
-        
+
         data.push(render)
         if (dominant && dominant.dominant) {
             return [dominant]
@@ -205,6 +206,16 @@ export class Renderer {
   draw(renderData: RenderComponent[]) {
     let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d")
     for (let object of renderData) {
+        ctx.resetTransform();
+
+        //Polygons have their own rotation.
+        if (object.rotation && object.type != "polygon") {
+            ctx.translate(object.x, object.y)
+            ctx.rotate((object.rotation) * Math.PI / 180);
+            ctx.translate(-object.x, -object.y)
+
+        }
+
         switch (object.type) {
             case "text":
                 ctx.font = "18px Times New Roman"
