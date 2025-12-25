@@ -1,4 +1,5 @@
 import { Point } from "./point.js";
+import { RecieveKeyPress, isRecieveKeyPress } from "./recievekeypress.js";
 import { Renderable, SubObject } from "./renderable.js";
 import { RenderComponent } from "./rendercomponent.js";
 
@@ -240,6 +241,11 @@ export class Renderer {
   }
 
   removeObject(object: Renderable){
+
+    if (isRecieveKeyPress(object)) {
+        window.removeEventListener("keypress", object)
+    }
+
     var index = this.objects.indexOf(object)
     if (index > -1){
         this.objects.splice(index,1)
@@ -279,6 +285,9 @@ export class Renderer {
   }
 
   addObject(object: Renderable){
+    if (isRecieveKeyPress(object)) {
+        window.addEventListener("keypress", object);
+    }
     this.objects.push(object)
   }
   static sortObjects(objects: Renderable[]): Renderable[];
