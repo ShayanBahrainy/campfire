@@ -53,25 +53,34 @@ export class Renderer {
             }
             data.push(text)
         }
+
+        if (object.shape == "none") {
+            continue;
+        }
+
         let render: RenderComponent = {x: Infinity, y: Infinity, type: "line"}
         render.fillStyle = object.fillStyle
         render.x = object.x
         render.y = object.y
+
         if (object.shape == "rectangle"){
             render.type = "rectangle"
             render.width = object.width
             render.height = object.height
         }
+
         if (object.shape == "circle"){
             render.type = "circle"
             render.radius = object.radius
             render.angle = object.angle ? object.angle : 360
         }
+
         if (object.shape == "line") {
             render.type = "line"
             render.end = object.end
             render.width = object.width
         }
+
         if (object.shape == "polygon") {
             render.type = "polygon"
             render.apothem = object.apothem
@@ -80,6 +89,7 @@ export class Renderer {
                 render.rotation = object.rotation
             }
         }
+        
         data.push(render)
         if (dominant && dominant.dominant) {
             return [dominant]

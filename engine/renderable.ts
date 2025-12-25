@@ -6,7 +6,7 @@ export interface Renderable {
     collision(otherObject: Renderable): void;
     x: number;
     y: number;
-    shape: Shape;
+    shape: Shape | "none";
     priority: number;
     fillStyle: string;
     width?: number;
