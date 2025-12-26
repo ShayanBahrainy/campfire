@@ -1,6 +1,6 @@
 import { Point } from "./point.js";
 import { RecieveKeyPress, isRecieveKeyPress } from "./recievekeypress.js";
-import { Renderable, SubObject } from "./renderable.js";
+import { isSubObject, Renderable, SubObject } from "./renderable.js";
 import { RenderComponent } from "./rendercomponent.js";
 
 export class Renderer {
@@ -130,7 +130,7 @@ export class Renderer {
     }
     return SpatialMap
   }
-  narrowPhaseChecks(objects: Renderable[]) {
+  static narrowPhaseChecks(objects: (Renderable | SubObject)[]) {
     let cewidth: number
     let ceheight: number
     let crwidth: number
@@ -181,24 +181,44 @@ export class Renderer {
             VerticalLength -= (ceheight! + crheight!)/2
 
             if (HorizontonalLength <= 0 && VerticalLength <= 0) {
+                if (isSubObject(collider)) {
+                    collider = collider._parent;
+                }
+                if (isSubObject(collidee)) {
+                    collidee = collidee._parent;
+                }
                 collider.collision(collidee)
             }
         }
     }
   }
   collisionChecks() {
-    //Our spatial maps are 2d arrays where first dimension is x, second is y, and the values are arrays of objects at that coordinate
-    //Spatial Map = [[[Object1], [Object2]], [[Object3], [Object4,Object5]]
-    let SpatialMap = this.calculateSpatialMap()
+    //Tag subobjects with parents
+    let allObjects: Array<Renderable | SubObject> = [];
+    for (let object of this.objects) {
+        allObjects.push(object);
+        if (object.renderparts) {
+            let updatedSubObjects: SubObject[] = [];
+            for (let subObject of object.renderparts) {
+                subObject._parent = object;
+                updatedSubObjects.push(subObject)
+            }
+            allObjects.push(...updatedSubObjects);
+        }
+    }
+    //Spatial maps are 2d arrays where first dimension is x, second is y, and the values are arrays of objects at that coordinate
+    //Spatial Map = [[[Object1], [Object2]], [[Object3], [Object4,Object5]]]
+    let SpatialMap = Renderer.calculateSpatialMap(allObjects);
+
     for (let X of SpatialMap) {
         if (!X) {
-            continue
+            continue;
         }
         for (let Y of X) {
             if (!Y) {
-                continue
+                continue;
             }
-            this.narrowPhaseChecks(Y)
+            Renderer.narrowPhaseChecks(Y);
         }
     }
   }

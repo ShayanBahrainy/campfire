@@ -1,6 +1,10 @@
 import { Shape } from './shape.js';
 import { Point } from './point.js'
 
+export function isSubObject(obj: (SubObject | Renderable)): obj is SubObject {
+  return "_parent" in obj;
+}
+
 export interface Renderable {
     update(): void;
     collision(otherObject: Renderable): void;
@@ -38,4 +42,5 @@ export interface SubObject {
     isdominant?: boolean;
     apothem?: number;
     vertexes?: number;
+    _parent?: Renderable;
 }
