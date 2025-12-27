@@ -118,7 +118,10 @@ export class Renderer {
   static calculateSpatialMap(objects: (Renderable | SubObject)[]): (Renderable | SubObject)[][][] {
     let SpatialMap: (Renderable | SubObject)[][][] = []
     for (let object of objects){
-        let X = Math.floor(object.x/200)
+        if (isSubObject(object) && object.nocollide) {
+            continue;
+        }
+        let X = Math.floor(object.x/600)
         if (SpatialMap[X] == null) {
             SpatialMap[X] = []
         }

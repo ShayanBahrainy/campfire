@@ -43,4 +43,5 @@ export interface SubObject {
     apothem?: number;
     vertexes?: number;
     _parent?: Renderable;
+    nocollide?: boolean;
 }
