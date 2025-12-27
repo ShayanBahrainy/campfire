@@ -7,7 +7,7 @@ export function isSubObject(obj: (SubObject | Renderable)): obj is SubObject {
 
 export interface Renderable {
     update(): void;
-    collision(otherObject: Renderable): void;
+    collision(otherObject: Renderable, subObject?: SubObject): void;
     x: number;
     y: number;
     shape: Shape | "none";

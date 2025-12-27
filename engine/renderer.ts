@@ -26,7 +26,6 @@ export class Renderer {
 
     this.tick = this.tick.bind(this)
     this.collisionChecks = this.collisionChecks.bind(this)
-    this.calculateSpatialMap = this.calculateSpatialMap.bind(this)
     this.removeObject = this.removeObject.bind(this)
 
     this.intervalId = setInterval(this.tick,Math.round(1000/this.fps))
@@ -115,14 +114,15 @@ export class Renderer {
     }
     this.draw(this.getRenderables())
   }
-  calculateSpatialMap(): Renderable[][][] {
-    let SpatialMap: Renderable[][][] = []
-    for (let object of this.objects){
-        let X = Math.floor(object.x/50)
+
+  static calculateSpatialMap(objects: (Renderable | SubObject)[]): (Renderable | SubObject)[][][] {
+    let SpatialMap: (Renderable | SubObject)[][][] = []
+    for (let object of objects){
+        let X = Math.floor(object.x/200)
         if (SpatialMap[X] == null) {
             SpatialMap[X] = []
         }
-        let Y = Math.floor(object.y/50)
+        let Y = Math.floor(object.y/200)
         if (SpatialMap[X][Y] == null) {
             SpatialMap[X][Y] = []
         }
@@ -181,13 +181,7 @@ export class Renderer {
             VerticalLength -= (ceheight! + crheight!)/2
 
             if (HorizontonalLength <= 0 && VerticalLength <= 0) {
-                if (isSubObject(collider)) {
-                    collider = collider._parent;
-                }
-                if (isSubObject(collidee)) {
-                    collidee = collidee._parent;
-                }
-                collider.collision(collidee)
+                ( isSubObject(collider) ? collider._parent : collider ).collision(( isSubObject(collidee) ? collidee._parent : collidee), (isSubObject(collidee) ? collidee : undefined));
             }
         }
     }
@@ -270,6 +264,31 @@ export class Renderer {
                 ctx.lineTo(object.end!.x, object.end!.y)
                 ctx.stroke()
                 break;
+        }
+    }
+
+
+    let allObjects = []
+    for (let obj of this.objects) {
+        allObjects.push(obj)
+        if (obj.renderparts) {
+            allObjects.push(...obj.renderparts);
+        }
+    }
+    const DEBUG_GRID = true;
+    if (DEBUG_GRID) {
+        let map: (Renderable | SubObject)[][][] = Renderer.calculateSpatialMap(allObjects);
+        for (let X in map) {
+            for (let Y in map[X]) {
+                let x_num = Number(X);
+                let y_num  = Number(Y);
+                ctx.fillStyle = "rgb(255, 0, 0)";
+                ctx.beginPath();
+                ctx.arc(x_num * 200, y_num * 200, 5, 0, 360);
+                ctx.closePath();
+                ctx.fill();
+
+            }
         }
     }
   }
