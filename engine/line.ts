@@ -3,31 +3,9 @@ import { Renderable } from "./renderable.js"
 import { Point } from "./point.js"
 import { Shape } from "./shape.js";
 
-export class LineInert implements Renderable{
-   x: number;
-   y: number;
-   shape: Shape;
-   priority: number;
-   fillStyle: string;
+export class LineInert{
+    constructor(public start: Point, public end: Point) {
 
-   end: Point;
-   width: number;
-    constructor(start: Point, end: Point, width: number) {
-        this.x = start.x
-        this.y = start.y
-        this.end = end
-        this.shape = "line"
-        this.width = width
-        this.priority = 0
-        this.fillStyle = "rgb(255, 255, 255)"
-    }
-
-    update() {
-
-    }
-
-    collision () {
-        
     }
 }
 
