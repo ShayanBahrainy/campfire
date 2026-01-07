@@ -10,19 +10,13 @@ export class CollisionEngine {
         this.MAP_FACTOR = mapFactor;
     }
 
-    private static getRectanglePoints(rectangle: RectangleRenderable) {
-        let points: Point[] = [new Point(rectangle.x, rectangle.y), new Point(rectangle.x + rectangle.width, rectangle.y), new Point(rectangle.x + rectangle.width, rectangle.y + rectangle.height), new Point(rectangle.x, rectangle.y + rectangle.height)];
-
-        return points;
-    }
-
     private static closestVertexToCircle(object: BaseRenderable | SubObject, circle: CircleRenderable) {
         let points: Point[]
         let circleCenter: Point = new Point(circle.x, circle.y);
 
         if (object.shape == "rectangle") {
             const rectangle = object as RectangleRenderable;
-            points = CollisionEngine.getRectanglePoints(rectangle);
+            points = Renderer.getRectanglePoints(rectangle);
         }
 
         if (object.shape == "polygon") {
@@ -49,7 +43,7 @@ export class CollisionEngine {
 
         if (object.shape == "rectangle") {
             const rectangle = object as RectangleRenderable;
-            let points: Point[] = CollisionEngine.getRectanglePoints(rectangle);
+            let points: Point[] = Renderer.getRectanglePoints(rectangle);
 
             segments.push(new LineInert(points[points.length - 1], points[0]));
             for (let i = 1; i < points.length; i++) {
@@ -58,7 +52,7 @@ export class CollisionEngine {
 
         }
 
-        if (object.shape == "circle") {
+        if (object.shape == "circle" && otherShape && otherShape.shape != "circle") {
             const circle = object as CircleRenderable;
             axes.push(new LineInert(new Point(object.x, object.y), CollisionEngine.closestVertexToCircle(otherShape, circle)));
         }
@@ -81,20 +75,12 @@ export class CollisionEngine {
         //Generate the normals of any segments
         for (const segment of segments) {
             if (segment.start.x == segment.end.x) {
-                const midpoint = new Point((segment.start.x + segment.end.x) / 2, (segment.start.y + segment.end.y) / 2);
-
-                const newPoint = new Point(midpoint.x + 1, midpoint.y);
-
-                axes.push(new LineInert(midpoint, newPoint));
-
+                axes.push(new LineInert(new Point(0, 0), new Point(1, 0)));
             }
 
             else if (segment.start.y == segment.end.y) {
-                const midpoint = new Point((segment.start.x + segment.end.x)/ 2, (segment.start.y + segment.end.y)/2);
 
-                const newPoint = new Point(midpoint.x, midpoint.y + 1);
-
-                axes.push(new LineInert(midpoint, newPoint));
+                axes.push(new LineInert(new Point(0, 0), new Point(0, 1)));
             }
 
             else {
@@ -128,6 +114,13 @@ export class CollisionEngine {
             return false;
         }
 
+        if (first.shape == "circle" && second.shape == "circle") {
+            const circle_one = first as CircleRenderable;
+            const circle_second = second as CircleRenderable;
+
+            return Math.sqrt(Math.pow(first.x - second.x, 2) + Math.pow(first.y - second.y, 2)) < circle_one.radius + circle_second.radius;
+        }
+
         let axes: LineInert[] = []
 
         axes.push(...CollisionEngine.getAxes(first, second));
@@ -137,10 +130,8 @@ export class CollisionEngine {
         for (const axis of axes) {
             const firstProjection = new MinMaxProjection(first, axis);
             const secondProjection = new MinMaxProjection(second, axis);
-
             if (firstProjection.max < secondProjection.min || secondProjection.max < firstProjection.min) {
                 return false;
-
             }
         }
 
@@ -222,8 +213,10 @@ class MinMaxProjection {
             case "circle":
                 const circle = object as CircleRenderable;
 
-                this.min = ((object.x - circle.radius) * unitAxis.end.x) + (object.y * unitAxis.end.y);
-                this.max = ((object.x + circle.radius) * unitAxis.end.x) + (object.y * unitAxis.end.y);
+                const centerProjection = circle.x * unitAxis.end.x + circle.y * unitAxis.end.y;
+
+                this.min = centerProjection - circle.radius;
+                this.max = centerProjection + circle.radius;
                 break;
 
             case "rectangle":
