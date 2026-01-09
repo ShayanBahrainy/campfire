@@ -19,6 +19,8 @@ window.addEventListener("DOMContentLoaded", function () {
 
     new Background(renderer);
 
-    new Snowball(renderer.canvas.width/2, 0, renderer);
+    const snowball = new Snowball(renderer.canvas.width/2, 0, renderer);
+
+    renderer.cameraFollow(snowball);
 
 })
