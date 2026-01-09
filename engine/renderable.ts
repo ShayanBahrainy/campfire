@@ -28,6 +28,8 @@ export interface BaseRenderable {
 
   nocollide?: boolean;
 
+  screenpositioning?: boolean;
+
 }
 
 export type RectangleRenderable = (BaseRenderable & {shape: "rectangle", width: number, height: number});
@@ -56,4 +58,5 @@ export interface SubObject {
     vertexes?: number;
     _parent?: BaseRenderable;
     nocollide?: boolean;
+    screenpositioning?: boolean;
 }

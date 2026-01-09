@@ -4,6 +4,8 @@ import { RecieveKeyPress, isRecieveKeyPress } from "./recievekeypress.js";
 import { isSubObject, BaseRenderable, SubObject, RectangleRenderable, CircleRenderable, LineRenderable, PolygonRenderable } from "./renderable.js";
 import { RenderComponent } from "./rendercomponent.js";
 
+enum CameraMode {fixed, follow};
+
 export class Renderer {
     static width = 1280;
     static height = 720;
@@ -18,6 +20,10 @@ export class Renderer {
     intervalId: NodeJS.Timeout;
 
     collision_engine: CollisionEngine;
+
+    private camera_mode: CameraMode;
+
+    private camera_follow: BaseRenderable;
 
     constructor() {
         this.objects = [];
@@ -34,6 +40,8 @@ export class Renderer {
         this.intervalId = setInterval(this.tick,Math.round(1000/this.fps));
 
         this.collision_engine = new CollisionEngine(200);
+
+        this.camera_mode = CameraMode.fixed;
     }
 
     getRenderables() {
@@ -51,7 +59,7 @@ export class Renderer {
         let dominant: RenderComponent | undefined
         for (let object of renderObjects) {
             if (Object.hasOwn(object, "text")){
-                let text: RenderComponent = {type: "text", text: object.text, x: object.x, y: object.y + 20}
+                let text: RenderComponent = {type: "text", text: object.text, x: object.x, y: object.y + 20, screenpositioning: object.screenpositioning ?? false}
                 if (object.isdominant) {
                     dominant = text
                     dominant.dominant = true
@@ -63,7 +71,7 @@ export class Renderer {
                 continue;
             }
 
-            let render: RenderComponent = {x: Infinity, y: Infinity, type: "line"}
+            let render: RenderComponent = {x: Infinity, y: Infinity, type: "line", screenpositioning: object.screenpositioning ?? false}
             render.fillStyle = object.fillStyle
             render.x = object.x
             render.y = object.y
@@ -276,7 +284,25 @@ export class Renderer {
 
     }
 
+    cameraFollow(center: BaseRenderable) {
+        this.camera_mode = CameraMode.follow;
+        this.camera_follow = center;
+    }
+
+    cameraFixed() {
+        this.camera_mode = CameraMode.fixed;
+        this.camera_follow = null;
+    }
+
     draw(renderData: RenderComponent[]) {
+        if (this.camera_mode == CameraMode.follow) {
+            for (const component of renderData) {
+                if (component.screenpositioning) continue;
+                component.x -= this.camera_follow.x - this.canvas.width/2;
+                component.y -= this.camera_follow.y - this.canvas.height/2;
+            }
+        }
+
         let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d")
         for (let object of renderData) {
             ctx.resetTransform();
@@ -330,6 +356,14 @@ export class Renderer {
                 allObjects.push(...obj.renderparts);
             }
         }
+    }
+
+    getFollowPoint(): Point {
+        if (this.camera_mode != CameraMode.follow) {
+            throw new Error("Attempt to retrieve follow point when camera mode is not follow.");
+        }
+
+        return new Point(this.camera_follow.x, this.camera_follow.y);
     }
 
     getCanvas() {

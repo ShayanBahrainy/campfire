@@ -5,6 +5,7 @@ export interface RenderComponent {
     x: number;
     y: number;
     type: Shape | "text";
+    screenpositioning: boolean;
     fillStyle?: string;
     text?: string;
     angle?: number;
