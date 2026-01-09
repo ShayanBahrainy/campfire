@@ -7,9 +7,7 @@ import { Background } from "./background.js";
 import { Snowball } from "./snowball.js";
 
 
-function createMarshmallow(renderer: Renderer): void {
-    new Snowball(Math.random() * 1000, 50, renderer);
-}
+
 
 window.addEventListener("DOMContentLoaded", function () {
     let renderer: Renderer = new Renderer();
@@ -21,7 +19,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
     new Background(renderer);
 
-    createMarshmallow(renderer);
-    this.setInterval(createMarshmallow, 100, renderer);
+    new Snowball(renderer.canvas.width/2, 0, renderer);
 
 })

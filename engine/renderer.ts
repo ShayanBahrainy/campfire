@@ -342,7 +342,7 @@ export class Renderer {
     removeObject(object: BaseRenderable) {
         if (isRecieveKeyPress(object)) {
             const listener = object as any as RecieveKeyPress;
-            window.removeEventListener("keypress", listener);
+            window.removeEventListener("keydown", listener);
         }
 
         var index = this.objects.indexOf(object);
@@ -388,7 +388,7 @@ export class Renderer {
     addObject(object: BaseRenderable){
         if (isRecieveKeyPress(object)) {
             const listener = object as any as RecieveKeyPress;
-            window.addEventListener("keypress", listener);
+            window.addEventListener("keydown", listener);
         }
         this.objects.push(object);
     }
