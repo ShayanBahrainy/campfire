@@ -25,18 +25,18 @@ export class Background implements NoneRenderable {
         this.renderparts = [
             //Ground + Sky
             ...[
-                {shape: "rectangle" as Shape, x: 0, y: 0, priority: 0, fillStyle: "rgba(2, 2, 110, 1)", width: this.renderer.canvas.width, height: this.renderer.canvas.height * 2.0/3.0, nocollide: true},
-                {shape: "rectangle" as Shape, x: 0, y: this.renderer.canvas.height * 2.0/3.0, priority: 0, fillStyle: "rgb(93, 52, 0)", width: this.renderer.canvas.width, height: this.renderer.canvas.height/3.0},
+                {shape: "rectangle" as Shape, x: 0, y: 0, priority: 0, fillStyle: "rgba(2, 2, 110, 1)", width: this.renderer.canvas.width, height: this.renderer.canvas.height, nocollide: true, screenpositioning: true},
+                {shape: "rectangle" as Shape, x: 0, y: this.renderer.canvas.height * 2.0/3.0, priority: 0, fillStyle: "rgb(93, 52, 0)", width: this.renderer.canvas.width, height: this.renderer.canvas.height/3.0, screenpositioning: false},
             ]
         ]
 
+
+        const follow_point = this.renderer.getFollowPoint();
         const y = this.renderer.canvas.height * 2.0/3.0
 
         for (let i = 215; i < this.renderer.canvas.width; i += 400) {
             let campfire: SubObject[] = [
-                //{x: i + 25, y: y - 25, apothem: 15, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(250, 162, 0, 1)", priority: 2, rotation: 105},
                 {x: i + 25, y: y - 20, apothem: 40, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(250, 162, 0, 1)", priority: 1, rotation: 90},
-                //{x: i + 20, y: y - 30, radius: 10, shape: "circle" as Shape, vertexes: 3, fillStyle: "rgba(250, 162, 0, 1)", priority: 2, rotation: 0, angle: 180},
 
 
                 {x: i + 35, y: y - 60, width: 10, height: 70, priority: 2, shape: "rectangle" as Shape, fillStyle: "rgba(77, 52, 16, 1)", rotation: 135},
