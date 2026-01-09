@@ -3,7 +3,7 @@ import { Point } from "./engine/point.js";
 import { RecieveKeyPress } from "./engine/recievekeypress.js";
 import { BaseRenderable, CircleRenderable, SubObject } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js";
-import { Shape } from "./engine/shape.js";
+
 
 export class Snowball implements CircleRenderable, RecieveKeyPress {
 
