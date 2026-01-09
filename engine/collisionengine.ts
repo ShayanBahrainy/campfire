@@ -3,6 +3,31 @@ import { Renderer } from "./renderer.js";
 import { Point } from "./point.js";
 import { LineInert } from "./line.js";
 
+
+class Vector {
+    constructor(public x: number, public y: number) {
+
+    }
+
+    static fromPoints(point1: Point, point2: Point) {
+        return new Vector(point1.x - point2.x, point1.y - point2.y);
+    }
+
+    static fromLine(line: LineInert) {
+        return new Vector(line.end.x - line.start.x, line.end.y - line.start.y);
+    }
+
+    normalize(): Vector {
+        const magnitude = Math.sqrt(this.x * this.x + this.y * this.y);
+
+        if (magnitude == 0) {
+            return new Vector(0, 0);
+        }
+
+        return new Vector(this.x/magnitude, this.y/magnitude);
+    }
+}
+
 export class CollisionEngine {
     public readonly MAP_FACTOR: number;
 
@@ -36,10 +61,10 @@ export class CollisionEngine {
         return minPoint;
     }
 
-    private static getAxes(object: BaseRenderable | SubObject, otherShape?: BaseRenderable | SubObject): LineInert[] {
+    private static getAxes(object: BaseRenderable | SubObject, otherShape?: BaseRenderable | SubObject): Vector[] {
         let segments: LineInert[] = []
 
-        let axes: LineInert[] = []
+        let axes: Vector[] = []
 
         if (object.shape == "rectangle") {
             const rectangle = object as RectangleRenderable;
@@ -54,7 +79,7 @@ export class CollisionEngine {
 
         if (object.shape == "circle" && otherShape && otherShape.shape != "circle") {
             const circle = object as CircleRenderable;
-            axes.push(new LineInert(new Point(object.x, object.y), CollisionEngine.closestVertexToCircle(otherShape, circle)));
+            axes.push(Vector.fromPoints(new Point(object.x, object.y), CollisionEngine.closestVertexToCircle(otherShape, circle)));
         }
 
         if (object.shape == "polygon") {
@@ -72,41 +97,17 @@ export class CollisionEngine {
             ;
         }
 
-        //Generate the normals of any segments
         for (const segment of segments) {
-            if (segment.start.x == segment.end.x) {
-                axes.push(new LineInert(new Point(0, 0), new Point(1, 0)));
-            }
-
-            else if (segment.start.y == segment.end.y) {
-
-                axes.push(new LineInert(new Point(0, 0), new Point(0, 1)));
-            }
-
-            else {
-                const dx = segment.end.x - segment.start.x;
                 const dy = segment.end.y - segment.start.y;
+                const dx = segment.end.x - segment.start.x;
 
-                const newPoint = new Point(-dy, dx);
-
-                axes.push(new LineInert(new Point(0, 0), newPoint));
-
-            }
+                axes.push(Vector.fromPoints(new Point(segment.start.x, segment.start.y), new Point(segment.start.x - dy, segment.start.y + dx)));
         }
 
         //Normalize to unit vector
-        axes = axes.map(function (axis: LineInert): LineInert {
+        axes = axes.map((vector) => vector.normalize());
 
-            const dx = axis.end.x - axis.start.x;
-            const dy = axis.end.y - axis.start.y;
-
-            const magnitude = Math.sqrt(Math.pow(dx,2) + Math.pow(dy, 2));
-
-            return new LineInert(new Point(0, 0), new Point((dx) / magnitude, (dy) / magnitude));
-
-        });
-
-        return axes
+        return axes;
     }
 
     SAT(first: BaseRenderable | SubObject, second: BaseRenderable | SubObject): boolean {
@@ -121,7 +122,7 @@ export class CollisionEngine {
             return Math.sqrt(Math.pow(first.x - second.x, 2) + Math.pow(first.y - second.y, 2)) < circle_one.radius + circle_second.radius;
         }
 
-        let axes: LineInert[] = []
+        let axes: Vector[] = []
 
         axes.push(...CollisionEngine.getAxes(first, second));
 
@@ -142,17 +143,20 @@ export class CollisionEngine {
         let SpatialMap: (BaseRenderable | SubObject)[][][] = []
 
         for (let object of objects){
-            if (isSubObject(object) && object.nocollide) {
+            if (object.nocollide) {
                 continue;
             }
+
             let X = Math.floor(object.x/this.MAP_FACTOR)
             if (SpatialMap[X] == null) {
                 SpatialMap[X] = [];
             }
+
             let Y = Math.floor(object.y/this.MAP_FACTOR)
             if (SpatialMap[X][Y] == null) {
                 SpatialMap[X][Y] = [];
             }
+
             SpatialMap[X][Y].push(object);
         }
 
@@ -166,12 +170,9 @@ class MinMaxProjection {
     public min: number;
     public max: number;
 
-    constructor(object: BaseRenderable | SubObject, axis: LineInert) {
+    constructor(object: BaseRenderable | SubObject, axis: Vector) {
         this.max = -Infinity;
         this.min = Infinity;
-        let axisMagnitude = Math.sqrt(Math.pow(axis.start.x - axis.end.x, 2) + Math.pow(axis.start.y - axis.end.y, 2))
-        let unitAxis = new LineInert(new Point(0, 0), new Point((axis.end.x - axis.start.x)/axisMagnitude, (axis.end.y - axis.start.y)/axisMagnitude));
-
 
         let points: Point[]
 
@@ -183,28 +184,21 @@ class MinMaxProjection {
             case "polygon":
                 const polygon = object as PolygonRenderable;
                 points = Renderer.calculatePoints(polygon.vertexes, polygon.apothem, object.x, object.y, object.rotation ? object.rotation : 0);
-                let adjustedPoints: Point[] = [];
 
                 for (let point of points) {
-                    adjustedPoints.push(point.add(new Point(-object.x, -object.y))); //Make sure point is in terms of origin of shape.
-                }
-
-                for (let point of adjustedPoints) {
-                    const projection = (point.x * unitAxis.end.x + point.y * unitAxis.end.y);
+                    const projection = (point.x * axis.x + point.y * axis.y);
 
                     this.min = Math.min(projection, this.min);
 
                     this.max = Math.max(projection, this.max);
-
                 }
-
                 break;
 
             case "line":
                 const line = object as LineRenderable;
 
-                const startProjection = (object.x * unitAxis.end.x) + (object.y * unitAxis.end.y)
-                const endProjection = (line.end.x * unitAxis.end.x) + (line.end.y * unitAxis.end.y);
+                const startProjection = (object.x * axis.x) + (object.y * axis.y)
+                const endProjection = (line.end.x * axis.x) + (line.end.y * axis.y);
 
                 this.min = Math.min(startProjection, endProjection);
                 this.max = Math.max(startProjection, endProjection);
@@ -213,7 +207,7 @@ class MinMaxProjection {
             case "circle":
                 const circle = object as CircleRenderable;
 
-                const centerProjection = circle.x * unitAxis.end.x + circle.y * unitAxis.end.y;
+                const centerProjection = circle.x * axis.x + circle.y * axis.y;
 
                 this.min = centerProjection - circle.radius;
                 this.max = centerProjection + circle.radius;
@@ -226,8 +220,11 @@ class MinMaxProjection {
 
                 points = [new Point(object.x - origin.x, object.y - origin.y), new Point(object.x + rectangle.width - origin.x, object.y - origin.y), new Point(object.x + rectangle.width - origin.x, object.y + rectangle.height - origin.y), new Point(object.x - origin.x, object.y + rectangle.height - origin.y)];
 
+
+                points = Renderer.getRectanglePoints(rectangle);
+
                 for (let point of points) {
-                    const projection = (point.x * unitAxis.end.x + point.y * unitAxis.end.y);
+                    const projection = (point.x * axis.x + point.y * axis.y);
 
                     this.min = Math.min(projection, this.min);
                     this.max = Math.max(projection, this.max);
