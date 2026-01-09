@@ -1,1 +1,4 @@
-export type Shape = "rectangle" | "circle" | "line" | "polygon";
+export type Shape = "rectangle"
+| "circle"
+| "line"
+| "polygon";

@@ -142,7 +142,8 @@ export class Renderer {
             SpatialMap[X][Y].push(object)
         }
         return SpatialMap
-        }
+    }
+
     static narrowPhaseChecks(objects: (BaseRenderable | SubObject)[]) {
         let cewidth: number
         let ceheight: number
@@ -327,22 +328,6 @@ export class Renderer {
             allObjects.push(obj)
             if (obj.renderparts) {
                 allObjects.push(...obj.renderparts);
-            }
-        }
-        const DEBUG_GRID = true;
-        if (DEBUG_GRID) {
-            let map: (BaseRenderable | SubObject)[][][] = Renderer.calculateSpatialMap(allObjects);
-            for (let X in map) {
-                for (let Y in map[X]) {
-                    let x_num = Number(X);
-                    let y_num  = Number(Y);
-                    ctx.fillStyle = "rgb(255, 0, 0)";
-                    ctx.beginPath();
-                    ctx.arc(x_num * 600, y_num * 600, 5, 0, 360);
-                    ctx.closePath();
-                    ctx.fill();
-
-                }
             }
         }
     }

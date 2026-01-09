@@ -26,6 +26,8 @@ export interface BaseRenderable {
 
   rotation?: number;
 
+  nocollide?: boolean;
+
 }
 
 export type RectangleRenderable = (BaseRenderable & {shape: "rectangle", width: number, height: number});

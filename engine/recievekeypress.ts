@@ -1,6 +1,6 @@
-import { Renderable } from "./renderable.js";
+import { BaseRenderable } from "./renderable.js";
 
-export function isRecieveKeyPress(obj: Renderable): obj is Renderable & RecieveKeyPress {
+export function isRecieveKeyPress(obj: BaseRenderable): obj is BaseRenderable & RecieveKeyPress {
   return typeof (obj as any).handleEvent === "function";
 }
 

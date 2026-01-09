@@ -1,5 +1,5 @@
 import { Renderer } from "./renderer.js"
-import { Renderable } from "./renderable.js"
+import { LineRenderable } from "./renderable.js"
 import { Point } from "./point.js"
 import { Shape } from "./shape.js";
 
@@ -9,10 +9,10 @@ export class LineInert{
     }
 }
 
-export class Line implements Renderable {
+export class Line implements LineRenderable {
     x: number;
     y: number;
-    shape: Shape;
+    shape: "line";
     priority: number;
     fillStyle: string;
 

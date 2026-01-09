@@ -1,11 +1,11 @@
-import { Renderable } from "./engine/renderable.js";
+import { BaseRenderable, RectangleRenderable } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js"
 import { Shape } from "./engine/shape.js";
 import { RecieveKeyPress } from "./engine/recievekeypress.js";
 
-export class Player implements Renderable, RecieveKeyPress {
+export class Player implements RectangleRenderable, RecieveKeyPress {
     priority: number;
-    shape: Shape;
+    shape: "rectangle";
     fillStyle: string;
 
     width: number;
@@ -24,7 +24,7 @@ export class Player implements Renderable, RecieveKeyPress {
 
     }
 
-    collision(otherObject: Renderable): void {
+    collision(otherObject: BaseRenderable): void {
 
     }
 
