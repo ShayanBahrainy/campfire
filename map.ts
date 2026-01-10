@@ -38,7 +38,9 @@ export class Map implements NoneRenderable {
 
     private generateChunk(x: number, y: number, width: number): SubObject[] {
         const components: SubObject[] = []
-        for (let i = 315 + x; i < width + x; i += 400) {
+
+
+        for (let i = Math.floor(x / 400) * 400 + 175; i < width + x; i += 400) {
             let campfire: SubObject[] = [
                 {x: i + 25, y: y - 20, apothem: 40, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(250, 162, 0, 1)", priority: 1, rotation: 90},
 
@@ -52,7 +54,7 @@ export class Map implements NoneRenderable {
             components.push(...campfire)
         }
 
-        for (let i = 150 + x; i < width + x; i += 400) {
+        for (let i = Math.floor(x / 400) * 400; i < width + x; i += 400) {
             let tree: SubObject[] = [
                 {x: i - 20, y: y - 200, height: 200, width: 20, priority: 1, shape: "rectangle" as Shape, fillStyle: "rgb(93, 52, 0)"},
                 {x: i - 5, y: y - 240, apothem: 90, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
@@ -67,8 +69,8 @@ export class Map implements NoneRenderable {
 
     update(): void {
 
-        const h_chunk_factor = 1000;
-        const v_chunk_factor = 700;
+        const h_chunk_factor = 800;
+        const v_chunk_factor = 600;
 
         const follow_point = this.renderer.getFollowPoint();
 
@@ -82,8 +84,8 @@ export class Map implements NoneRenderable {
 
         this.renderparts = [];
 
-        for (let i = cx - 2; i < cx + 2; i++) {
-            for (let j = cy - 2; j < cy + 2; j++) {
+        for (let i = cx - 3; i < cx + 3; i++) {
+            for (let j = cy - 3; j < cy + 3; j++) {
                 this.renderparts.push(...this.generateChunk(i * h_chunk_factor, j * v_chunk_factor - 200, h_chunk_factor));
             }
         }
