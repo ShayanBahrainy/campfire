@@ -1,5 +1,3 @@
-import { Line } from "./engine/line.js";
-import { Point } from "./engine/point.js";
 import { RecieveKeyPress } from "./engine/recievekeypress.js";
 import { BaseRenderable, CircleRenderable, SubObject } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js";
@@ -7,8 +5,8 @@ import { Renderer } from "./engine/renderer.js";
 
 export class Snowball implements CircleRenderable, RecieveKeyPress {
 
-    vx: number;
-    vy: number;
+    private vx: number;
+    private vy: number;
 
     shape: "circle";
     priority: number;
@@ -25,7 +23,7 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
         renderer.addObject(this);
         this.shape = "circle";
         this.vx = 0.1;
-        this.vy = 1;
+        this.vy = 2;
         this.fillStyle = "rgb(255,255,255)"
         this.priority = 5;
         this.renderer = renderer;

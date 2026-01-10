@@ -23,12 +23,13 @@ export class Background implements NoneRenderable {
 
     update() {
         this.renderparts = [
-            //Ground + Sky
+            //Sky
             ...[
                 {shape: "rectangle" as Shape, x: 0, y: 0, priority: 0, fillStyle: "rgba(2, 2, 110, 1)", width: this.renderer.canvas.width, height: this.renderer.canvas.height, nocollide: true, screenpositioning: true},
-                {shape: "rectangle" as Shape, x: 0, y: this.renderer.canvas.height * 2.0/3.0, priority: 0, fillStyle: "rgb(93, 52, 0)", width: this.renderer.canvas.width, height: this.renderer.canvas.height/3.0, screenpositioning: false},
             ]
         ]
+
+        /*
 
 
         const follow_point = this.renderer.getFollowPoint();
@@ -57,6 +58,7 @@ export class Background implements NoneRenderable {
             ]
             this.renderparts.push(...tree)
         }
+        */
     }
 
     collision(otherObject: BaseRenderable): void {
