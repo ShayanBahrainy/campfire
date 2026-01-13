@@ -38,6 +38,10 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
         this.vx = Math.min(10, this.vx);
         this.vx = Math.max(-10, this.vx);
 
+        if (!this.nocollide) {
+            this.vy += 0.01;
+        }
+
         this.x += this.vx;
         this.y += this.vy;
     }
