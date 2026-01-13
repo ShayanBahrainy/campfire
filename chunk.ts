@@ -49,7 +49,7 @@ export class Chunk implements NoneRenderable {
                 let embers: Ember[] = [];
 
                 for (let j = 0; j < ember_count; j++){
-                    embers.push({x: i + generateFloat(i, y) * 10, y: y - 125 + Math.random() * 50, radius: 3, shape: "circle" as Shape, vertexes: 3, fillStyle: "rgba(231, 185, 100, 1)", angle: 360, priority: 2, vibration: generateFloat(i + j, y) * 5 * v_signs[j] } as Ember)
+                    embers.push({x: i + generateFloat(i, y) * 10, y: y - 150 + Math.random() * 75, radius: 3, shape: "circle" as Shape, vertexes: 3, fillStyle: "rgba(231, 185, 100, 1)", angle: 360, priority: 2, vibration: generateFloat(i + j, y) * 5 * v_signs[j] } as Ember)
                 }
 
                 this.embers.push(
