@@ -25,6 +25,8 @@ export class Renderer {
 
     private camera_follow: BaseRenderable;
 
+    private rand_seed: number;
+
     constructor() {
         this.objects = [];
         this.fps = Renderer.FPS;
@@ -42,6 +44,8 @@ export class Renderer {
         this.collision_engine = new CollisionEngine(200);
 
         this.camera_mode = CameraMode.fixed;
+
+        this.rand_seed = Math.random() * 2**32;
     }
 
     getRenderables() {
@@ -464,5 +468,16 @@ export class Renderer {
 
         return points;
     }
+
+    generateRandom(a: number, b: number) {
+        let h = Math.imul(a, 374761393) ^ Math.imul(b, 668265263) ^ Math.imul(this.rand_seed, 128902331);
+        h = (h ^ (h >>> 13)) * 1274126177;
+        return (h ^ (h >>> 16)) >>> 0;
+    }
+
+    generateFloat(a: number, b: number): number {
+        return this.generateRandom(a, b) / 2**32;
+    }
+
 
 }
