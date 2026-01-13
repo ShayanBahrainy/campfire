@@ -2,7 +2,7 @@ import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.j
 import { Renderer } from "./engine/renderer.js";
 import { Shape } from "./engine/shape.js";
 
-export class Map implements NoneRenderable {
+export class MapMaker implements NoneRenderable {
     x: number;
     y: number;
 
