@@ -1,3 +1,4 @@
+import { Point } from "./engine/point.js";
 import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js";
 import { Shape } from "./engine/shape.js";
@@ -8,7 +9,7 @@ export class Ember implements SubObject {
     angle: number;
     shape: Shape;
 
-    constructor(public x: number, public y: number, public radius: number, public priority: number, public fillStyle: string, public burnt: boolean, public vibration: number) {
+    constructor(public x: number, public y: number, public radius: number, public priority: number, public fillStyle: string, public burnt: boolean, public vibration: number, public firePosition: Point) {
         this.kind = "ember";
         this.angle = 360;
         this.shape = "circle" as Shape;
@@ -61,7 +62,7 @@ export class Chunk implements NoneRenderable {
 
                 for (let j = 0; j < ember_count; j++){
                     const isBurnt = Math.random() > 0.5;
-                    embers.push(new Ember(i + generateFloat(i, y) * 10, y - 150 + Math.random() * 75, 3, 2, isBurnt ? "rgba(85, 78, 78, 1)": "rgba(231, 185, 100, 1)", isBurnt, generateFloat(i + j, y) * 5 * v_signs[j]))
+                    embers.push(new Ember(i + generateFloat(i, y) * 10, y - 150 + Math.random() * 75, 3, 2, isBurnt ? "rgba(85, 78, 78, 1)": "rgba(231, 185, 100, 1)", isBurnt, generateFloat(i + j, y) * 5 * v_signs[j], new Point(i, y)));
                 }
 
                 this.embers.push(
@@ -115,6 +116,9 @@ export class Chunk implements NoneRenderable {
 
         for (const ember of this.embers) {
             for (const subObject of ember) {
+                if (Math.abs(subObject.firePosition.y - subObject.y) > 400) {
+                    subObject.y = subObject.firePosition.y - 150 + Math.random() * 75;
+                }
                 subObject.y -= 1;
                 subObject.x -= subObject.vibration * Math.cos(subObject.y / 10);
             }
