@@ -33,10 +33,10 @@ export class Chunk implements NoneRenderable {
             if (this.renderer.generateRandom(i, y) % 6 == 0) continue;
 
             let campfire: SubObject[] = [
-                {x: i + 25, y: y - 20, apothem: 40, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(250, 162, 0, 1)", priority: 1, rotation: 90},
-                {x: i + 35, y: y - 60, width: 10, height: 70, priority: 2, shape: "rectangle" as Shape, fillStyle: "rgba(77, 52, 16, 1)", rotation: 135},
-                {x: i + 10, y: y - 60, width: 10, height: 70, priority: 2, shape: "rectangle" as Shape, fillStyle: "rgba(89, 74, 53, 1)", rotation: 225},
-
+                {x: i + 25, y: y - 15, apothem: 45, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(250, 162, 0, 1)", priority: 1, rotation: 90},
+                {x: i, y: y, radius: 15.5, priority: 2, shape: "circle" as Shape, fillStyle: "rgb(77, 52, 16)", rotation: -220},
+                {x: i + 24, y: y, radius: 15.5, priority: 2, shape: "circle" as Shape, fillStyle: "rgb(77, 52, 16)", rotation: 235},
+                {x: i + 50, y: y, radius: 15.5, priority: 2, shape: "circle" as Shape, fillStyle: "rgb(77, 52, 16)", rotation: 235},
             ];
 
             //Generate embers
