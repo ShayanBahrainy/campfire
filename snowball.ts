@@ -54,6 +54,19 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
         }
     }
 
+    /**
+        Change velocity of snowball, pass `Infinity` to leave an axis untouched.
+    */
+    setVelocity(vx: number, vy: number) {
+        if (vx != Infinity) {
+            this.vx = vx;
+        }
+
+        if (vy != Infinity) {
+            this.vy = vy;
+        }
+    }
+
     collision(otherObject: BaseRenderable, subObject?: SubObject): void {
         if (otherObject instanceof Snowball) return;
         if (subObject && subObject instanceof Ember && subObject.burnt) return;
