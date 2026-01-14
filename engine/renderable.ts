@@ -41,22 +41,22 @@ export type NoneRenderable = (BaseRenderable & {shape: "none"});
 
 
 export interface SubObject {
-    x: number;
-    y: number;
-    shape: Shape;
-    priority: number;
-    fillStyle: string;
-    width?: number;
-    height?: number;
-    angle?: number;
-    rotation?: number;
-    radius?: number;
-    end?: Point;
-    text?: string;
-    isdominant?: boolean;
-    apothem?: number;
-    vertexes?: number;
-    _parent?: BaseRenderable;
-    nocollide?: boolean;
-    screenpositioning?: boolean;
+  x: number;
+  y: number;
+  shape: Shape;
+  priority: number;
+  fillStyle: string;
+  width?: number;
+  height?: number;
+  angle?: number;
+  rotation?: number;
+  radius?: number;
+  end?: Point;
+  text?: string;
+  isdominant?: boolean;
+  apothem?: number;
+  vertexes?: number;
+  _parent?: BaseRenderable;
+  nocollide?: boolean;
+  screenpositioning?: boolean;
 }

@@ -323,7 +323,7 @@ export class Renderer {
                     ctx.font = "18px Times New Roman"
                     ctx.textAlign = "center"
                     ctx.textBaseline = "middle"
-                    ctx.fillStyle = "#000000"
+                    ctx.fillStyle = "#ffffffff"
                     ctx.fillText(object.text!,object.x,object.y)
                     break;
                 case "rectangle":
