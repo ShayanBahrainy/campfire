@@ -2,9 +2,20 @@ import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.j
 import { Renderer } from "./engine/renderer.js";
 import { Shape } from "./engine/shape.js";
 
-interface Ember extends SubObject {
-    vibration?: number;
+
+export class Ember implements SubObject {
+    kind: string;
+    angle: number;
+    shape: Shape;
+
+    constructor(public x: number, public y: number, public radius: number, public priority: number, public fillStyle: string, public burnt: boolean, public vibration: number) {
+        this.kind = "ember";
+        this.angle = 360;
+        this.shape = "circle" as Shape;
+    }
 }
+
+
 
 export class Chunk implements NoneRenderable {
     x: number;
@@ -40,7 +51,7 @@ export class Chunk implements NoneRenderable {
             ];
 
             //Generate embers
-            if (this.renderer.generateFloat(i, y) < 0.25) {
+            if (this.renderer.generateFloat(i, y) > 0.25) {
                 const ember_count = Math.floor(Math.random() * 6);
 
                 const v_signs: number[] = [];
@@ -49,7 +60,8 @@ export class Chunk implements NoneRenderable {
                 let embers: Ember[] = [];
 
                 for (let j = 0; j < ember_count; j++){
-                    embers.push({x: i + generateFloat(i, y) * 10, y: y - 150 + Math.random() * 75, radius: 3, shape: "circle" as Shape, vertexes: 3, fillStyle: "rgba(231, 185, 100, 1)", angle: 360, priority: 2, vibration: generateFloat(i + j, y) * 5 * v_signs[j] } as Ember)
+                    const isBurnt = Math.random() > 0.5;
+                    embers.push(new Ember(i + generateFloat(i, y) * 10, y - 150 + Math.random() * 75, 3, 2, isBurnt ? "rgba(85, 78, 78, 1)": "rgba(231, 185, 100, 1)", isBurnt, generateFloat(i + j, y) * 5 * v_signs[j]))
                 }
 
                 this.embers.push(
@@ -64,7 +76,8 @@ export class Chunk implements NoneRenderable {
 
         for (let i = Math.floor(x / 400) * 400; i < width + x; i += 400) {
             let tree: SubObject[] = [
-                {x: i - 20, y: y - 200, height: 200, width: 20, priority: 1, shape: "rectangle" as Shape, fillStyle: "rgb(93, 52, 0)"},
+                //Stem of tree is unreachable, so don't do collisions to optimize
+                {x: i - 20, y: y - 200, height: 200, width: 20, priority: 1, shape: "rectangle" as Shape, fillStyle: "rgb(93, 52, 0)", nocollide: true},
                 {x: i - 5, y: y - 240, apothem: 90, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
                 {x: i - 5, y: y - 180, apothem: 120, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
                 {x: i - 5, y: y - 100, apothem: 150, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90}

@@ -1,7 +1,7 @@
 import { RecieveKeyPress } from "./engine/recievekeypress.js";
 import { BaseRenderable, CircleRenderable, SubObject } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js";
-
+import { Ember } from "./chunk.js";
 
 export class Snowball implements CircleRenderable, RecieveKeyPress {
 
@@ -48,6 +48,8 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
 
     collision(otherObject: BaseRenderable, subObject?: SubObject): void {
         if (otherObject instanceof Snowball) return;
+        if (subObject && subObject instanceof Ember && subObject.burnt) return;
+
         this.nocollide = true;
         this.vx = 0;
         this.vy = 0;
