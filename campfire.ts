@@ -14,8 +14,8 @@ window.addEventListener("DOMContentLoaded", function () {
 
     new MapMaker(renderer);
 
-    const snowball = new Snowball(renderer.canvas.width / 2, 0, renderer);
+    const player_snowball = new Snowball(renderer.canvas.width / 2, 0, renderer, true);
 
-    renderer.cameraFollow(snowball);
+    renderer.cameraFollow(player_snowball);
 
 })
