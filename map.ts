@@ -96,7 +96,7 @@ export class MapMaker implements NoneRenderable {
 
         for (let x of this.chunks.keys()) {
             for (let y of this.chunks.get(x).keys()) {
-                if (x > cx + 2 || x < cx - 2 || y > cy + 2 || y < cy + 2) {
+                if (x > cx + 2 || x < cx - 2 || y > cy + 2 || y < cy - 2) {
                     this.chunks.get(x).get(y).destruct();
                     this.chunks.get(x).delete(y);
                 }
