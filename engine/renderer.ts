@@ -126,15 +126,15 @@ export class Renderer {
 
 
     tick() {
-        this.canvas.width = document.documentElement.clientWidth
-        this.canvas.height = document.documentElement.clientHeight
-        this.collisionChecks()
-        let renderObjects = Renderer.sortObjects(this.objects)
+        this.canvas.width = document.documentElement.clientWidth;
+        this.canvas.height = document.documentElement.clientHeight;
+        this.collisionChecks();
+        let renderObjects = Renderer.sortObjects(this.objects);
         for (let key in renderObjects) {
-            let object = renderObjects[key]
-            object.update()
+            let object = renderObjects[key];
+            object.update();
         }
-        this.draw(this.getRenderables())
+        this.draw(this.getRenderables());
     }
 
     static calculateSpatialMap(objects: (BaseRenderable | SubObject)[]): (BaseRenderable | SubObject)[][][] {

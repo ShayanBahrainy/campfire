@@ -1,3 +1,5 @@
+import { Vector } from "./vector";
+
 export class Point {
     x: number;
     y: number;
@@ -6,8 +8,11 @@ export class Point {
         this.y = y
     }
 
-    add(point: Point) {
-        return new Point(this.x + point.x, this.y + point.y)
+    add(vector: Vector): Point;
+    add(point: Point): Point;
+
+    add(something: Point | Vector): Point {
+        return new Point(this.x + something.x, this.y + something.y);
     }
 
     lessThan(otherPoint: Point) {
