@@ -2,31 +2,7 @@ import { BaseRenderable, CircleRenderable, LineRenderable, PolygonRenderable, Re
 import { Renderer } from "./renderer.js";
 import { Point } from "./point.js";
 import { LineInert } from "./line.js";
-
-
-class Vector {
-    constructor(public x: number, public y: number) {
-
-    }
-
-    static fromPoints(point1: Point, point2: Point) {
-        return new Vector(point1.x - point2.x, point1.y - point2.y);
-    }
-
-    static fromLine(line: LineInert) {
-        return new Vector(line.end.x - line.start.x, line.end.y - line.start.y);
-    }
-
-    normalize(): Vector {
-        const magnitude = Math.sqrt(this.x * this.x + this.y * this.y);
-
-        if (magnitude == 0) {
-            return new Vector(0, 0);
-        }
-
-        return new Vector(this.x/magnitude, this.y/magnitude);
-    }
-}
+import { Vector } from "./vector.js";
 
 export class CollisionEngine {
     public readonly MAP_FACTOR: number;
