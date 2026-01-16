@@ -3,6 +3,9 @@ import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.j
 import { Renderer } from "./engine/renderer.js";
 
 export class MapMaker implements NoneRenderable {
+    static readonly VERTICAL_CHUNK_FACTOR = 800;
+    static readonly HORIZONTAL_CHUNK_FACTOR = 600;
+
     x: number;
     y: number;
 
@@ -40,13 +43,10 @@ export class MapMaker implements NoneRenderable {
     }
 
     update(): void {
-        const h_chunk_factor = 800;
-        const v_chunk_factor = 600;
-
         const follow_point = this.renderer.getFollowPoint();
 
-        const cx = Math.floor(follow_point.x / h_chunk_factor);
-        const cy = Math.floor(follow_point.y / v_chunk_factor);
+        const cx = Math.floor(follow_point.x / MapMaker.HORIZONTAL_CHUNK_FACTOR);
+        const cy = Math.floor(follow_point.y / MapMaker.VERTICAL_CHUNK_FACTOR);
 
         if (cx == this.prevcx && cy == this.prevcy) {
             return;
@@ -68,7 +68,7 @@ export class MapMaker implements NoneRenderable {
                 }
 
                 if (!this.chunks.get(i).get(j)) {
-                    this.chunks.get(i).set(j, new Chunk(this.renderer, i * h_chunk_factor, j * v_chunk_factor - 200, h_chunk_factor));
+                    this.chunks.get(i).set(j, new Chunk(this.renderer, i * MapMaker.HORIZONTAL_CHUNK_FACTOR, j * MapMaker.VERTICAL_CHUNK_FACTOR, MapMaker.HORIZONTAL_CHUNK_FACTOR));
                 }
             }
         }

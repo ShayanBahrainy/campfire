@@ -2,7 +2,7 @@ import { Point } from "./engine/point.js";
 import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js";
 import { Shape } from "./engine/shape.js";
-
+import { MapMaker } from "./map.js";
 
 export class Ember implements SubObject {
     kind: string;
@@ -19,6 +19,8 @@ export class Ember implements SubObject {
 
 
 export class Chunk implements NoneRenderable {
+    static readonly CHUNK_HEIGHT = 330;
+
     x: number;
     y: number;
 
@@ -32,11 +34,15 @@ export class Chunk implements NoneRenderable {
 
     campfires: SubObject[][];
 
+    projectiles: SubObject[][];
+
     embers: Ember[][];
 
     renderer: Renderer;
 
     renderparts?: SubObject[];
+
+    has_fired: boolean;
 
     private generateChunk(x: number, y: number, width: number): void {
         let generateFloat: (a: number, b: number) => number = this.renderer.generateFloat.bind(this.renderer);
@@ -78,7 +84,7 @@ export class Chunk implements NoneRenderable {
         for (let i = Math.floor(x / 400) * 400; i < width + x; i += 400) {
             let tree: SubObject[] = [
                 //Stem of tree is unreachable, so don't do collisions to optimize
-                {x: i - 20, y: y - 200, height: 200, width: 20, priority: 1, shape: "rectangle" as Shape, fillStyle: "rgb(93, 52, 0)", nocollide: true},
+                {x: i - 20, y: y - 200, height: 200, width: 20, priority: 0, shape: "rectangle" as Shape, fillStyle: "rgb(93, 52, 0)", nocollide: true},
                 {x: i - 5, y: y - 240, apothem: 90, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
                 {x: i - 5, y: y - 180, apothem: 120, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
                 {x: i - 5, y: y - 100, apothem: 150, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90}
@@ -95,8 +101,26 @@ export class Chunk implements NoneRenderable {
         this.campfires = [];
         this.embers = [];
         this.trees = [];
+        this.projectiles = [];
+
+        this.has_fired = false;
+
+        this.x = x;
+        this.y = y;
+
+        this.shape = "none";
 
         this.generateChunk(x, y, width);
+    }
+
+    isHalfWay(point: Point): boolean {
+        const CHUNK_HEIGHT = Chunk.CHUNK_HEIGHT;
+        const LAYER_HEIGHT = MapMaker.VERTICAL_CHUNK_FACTOR;
+
+        if (point.y > this.y - CHUNK_HEIGHT  || point.y < this.y - LAYER_HEIGHT) return false;
+        if (Math.abs((this.y - CHUNK_HEIGHT - (LAYER_HEIGHT - CHUNK_HEIGHT)/2) - point.y) > 50) return false;
+
+        return true;
     }
 
     update(): void {
@@ -114,6 +138,10 @@ export class Chunk implements NoneRenderable {
             this.renderparts.push(...tree);
         }
 
+        for (const projectile of this.projectiles) {
+            this.renderparts.push(...projectile)
+        }
+
         for (const ember of this.embers) {
             for (const subObject of ember) {
                 if (Math.abs(subObject.firePosition.y - subObject.y) > 400) {
@@ -122,6 +150,14 @@ export class Chunk implements NoneRenderable {
                 subObject.y -= this.renderer.generateFloat(subObject.firePosition.y, subObject.y) * 1 + 0.5;
                 subObject.x -= subObject.vibration * Math.cos(subObject.y / 10);
             }
+        }
+
+        const follow_point = this.renderer.getFollowPoint();
+        if (this.isHalfWay(follow_point) && !this.has_fired) {
+            this.has_fired = true;
+
+            this.projectiles.push;
+
         }
     }
 
