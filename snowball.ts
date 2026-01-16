@@ -1,14 +1,73 @@
 import { RecieveKeyPress } from "./engine/recievekeypress.js";
-import { BaseRenderable, CircleRenderable, SubObject } from "./engine/renderable.js";
+import { BaseRenderable, SubObject } from "./engine/renderable.js";
+import { Shape } from "./engine/shape.js";
 import { Renderer } from "./engine/renderer.js";
 import { Ember } from "./chunk.js";
+import { Point } from "./engine/point.js";
+import { Vector } from "./engine/vector.js";
 
-export class Snowball implements CircleRenderable, RecieveKeyPress {
+class Shard implements SubObject {
+    x: number;
+    y: number;
+
+    priority: number;
+
+    fillStyle: string;
+
+    vertexes: number;
+
+    apothem: number;
+
+    shape: Shape;
+
+    keepMoving: boolean;
+
+    starting_pos: Point;
+
+    side: 1 | 0;
+
+    updatePosition(angle: number, current_point: Point) {
+        angle = angle * Math.PI / 180;
+        const position_delta = this.starting_pos.distance(current_point);
+        console.log(position_delta, this.starting_pos, current_point);
+        const offset_distance = position_delta * Math.tan(angle);
+
+        const segmentVector = Vector.fromPoints(this.starting_pos, current_point);
+
+        const offset = (this.side == 1 ? new Vector(-segmentVector.y, segmentVector.x) : new Vector(segmentVector.y, -segmentVector.x)).normalize().multiply(offset_distance);
+
+        const shard_pos = current_point.add(offset);
+
+        this.x = shard_pos.x;
+        this.y = shard_pos.y;
+    }
+
+    constructor(x: number, y: number, priority: number, fillStyle: string, side: 1 | 0) {
+        this.x = x;
+        this.y = y;
+
+        this.starting_pos = new Point(this.x, this.y);
+
+        this.priority = priority;
+        this.fillStyle = fillStyle;
+
+        this.shape = "polygon" as Shape;
+        this.vertexes = 3;
+        this.apothem = 10;
+
+        this.keepMoving = true;
+
+        this.side = side;
+    }
+}
+
+
+export class Snowball implements BaseRenderable, RecieveKeyPress {
 
     private vx: number;
     private vy: number;
 
-    shape: "circle";
+    shape: Shape | "none";
     priority: number;
     fillStyle: string;
 
@@ -25,6 +84,10 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
 
     isplayer?: boolean;
 
+    shattered?: boolean;
+    shatter_point?: Point;
+    shards?: Shard[];
+
     constructor(public x: number, public y: number, renderer: Renderer, isplayer: boolean) {
         renderer.addObject(this);
         this.shape = "circle";
@@ -38,7 +101,7 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
         this.angle = 360;
 
         this.nocollide = false;
-
+        this.shattered = false;
         this.isplayer = isplayer;
     }
 
@@ -49,8 +112,19 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
         this.x += this.vx;
         this.y += this.vy;
 
+        this.renderparts = [];
+
         if (this.isplayer) {
-            this.renderparts = [{x:20, y:0, text: (Math.floor(this.y / 1000) * 1000).toString(), shape: "rectangle", width: 0, height: 0, fillStyle: "rgb(255, 255, 255)", priority: 5, screenpositioning: true}];
+            this.renderparts.push(...[{x:20, y:0, text: (Math.floor(this.y / 1000) * 1000).toString(), shape: "rectangle" as Shape, width: 0, height: 0, fillStyle: "rgb(255, 255, 255)", priority: 5, screenpositioning: true}]);
+        }
+
+        if (this.shattered) {
+            for (const shard of this.shards) {
+                if (shard.keepMoving) {
+                    shard.updatePosition(45, new Point(this.x, this.y));
+                }
+            }
+            this.renderparts.push(...this.shards);
         }
     }
 
@@ -67,11 +141,41 @@ export class Snowball implements CircleRenderable, RecieveKeyPress {
         }
     }
 
-    collision(otherObject: BaseRenderable, subObject?: SubObject): void {
+    collision(otherObject: BaseRenderable, subObject?: SubObject, childObject?: SubObject): void {
+        //No collisions with other snowballs, burnt embers, and shards with embers
         if (otherObject instanceof Snowball) return;
         if (subObject && subObject instanceof Ember && subObject.burnt) return;
+        if (subObject && subObject instanceof Ember && childObject && childObject instanceof Shard) return;
 
-        this.nocollide = true;
+
+        if (subObject && subObject instanceof Ember && !(childObject instanceof Shard)) {
+            this.shape = "none";
+            this.shattered = true;
+            this.shatter_point = new Point(this.x, this.y);
+            this.shards = [new Shard(this.x, this.y, 2, "rgb(255,255,255)", 1), new Shard(this.x, this.y, 2, "rgb(255,255,255)", 0)];
+            this.nocollide = true;
+            return;
+        }
+
+        if (!(subObject && subObject instanceof Ember) && childObject && childObject instanceof Shard) {
+            childObject.keepMoving = false;
+
+            let allStopped = true;
+            for (const shard of this.shards) {
+                if (shard.keepMoving){
+                        allStopped = false;
+                }
+            }
+
+            if (allStopped) {
+                this.vx = 0;
+                this.vy = 0;
+            }
+
+            return;
+        }
+
+
         this.vx = 0;
         this.vy = 0;
     }
