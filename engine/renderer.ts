@@ -265,7 +265,7 @@ export class Renderer {
                         if (a == b) continue;
 
                         if (this.collision_engine.SAT(a, b)) {
-                            ( isSubObject(a) ? a._parent : a ).collision(( isSubObject(b) ? b._parent : b), (isSubObject(b) ? b : undefined));
+                            ( isSubObject(a) ? a._parent : a ).collision(( isSubObject(b) ? b._parent : b), (isSubObject(b) ? b : undefined), (isSubObject(a) ? a : undefined));
                         }
 
                     }

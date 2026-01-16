@@ -7,7 +7,7 @@ export function isSubObject(obj: (SubObject | BaseRenderable)): obj is SubObject
 
 export interface BaseRenderable {
   update(): void;
-  collision(otherObject: BaseRenderable, subObject?: SubObject): void;
+  collision(otherObject: BaseRenderable, subObject?: SubObject, childObject?: SubObject): void;
 
   x: number;
   y: number;
