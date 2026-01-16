@@ -29,7 +29,6 @@ class Shard implements SubObject {
     updatePosition(angle: number, current_point: Point) {
         angle = angle * Math.PI / 180;
         const position_delta = this.starting_pos.distance(current_point);
-        console.log(position_delta, this.starting_pos, current_point);
         const offset_distance = position_delta * Math.tan(angle);
 
         const segmentVector = Vector.fromPoints(this.starting_pos, current_point);
