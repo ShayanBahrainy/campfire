@@ -5,6 +5,7 @@ import { Renderer } from "./engine/renderer.js";
 import { Ember } from "./chunk.js";
 import { Point } from "./engine/point.js";
 import { Vector } from "./engine/vector.js";
+import { Icicle } from "./chunk.js";
 
 class Shard implements SubObject {
     x: number;
@@ -84,7 +85,6 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
     isplayer?: boolean;
 
     shattered?: boolean;
-    shatter_point?: Point;
     shards?: Shard[];
 
     constructor(public x: number, public y: number, renderer: Renderer, isplayer: boolean) {
@@ -141,16 +141,16 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
     }
 
     collision(otherObject: BaseRenderable, subObject?: SubObject, childObject?: SubObject): void {
-        //No collisions with other snowballs, burnt embers, and shards with embers
+        //No collisions with other snowballs, burnt embers, and shards with embers or wih icicles.
         if (otherObject instanceof Snowball) return;
         if (subObject && subObject instanceof Ember && subObject.burnt) return;
         if (subObject && subObject instanceof Ember && childObject && childObject instanceof Shard) return;
+        if (subObject && subObject instanceof Icicle && childObject && childObject instanceof Shard) return;
 
 
-        if (subObject && subObject instanceof Ember && !(childObject instanceof Shard)) {
+        if (subObject && (subObject instanceof Ember || subObject instanceof Icicle ) && !(childObject instanceof Shard)) {
             this.shape = "none";
             this.shattered = true;
-            this.shatter_point = new Point(this.x, this.y);
             this.shards = [new Shard(this.x, this.y, 2, "rgb(255,255,255)", 1), new Shard(this.x, this.y, 2, "rgb(255,255,255)", 0)];
             this.nocollide = true;
             return;
@@ -173,7 +173,6 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
 
             return;
         }
-
 
         this.vx = 0;
         this.vy = 0;

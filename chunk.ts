@@ -3,6 +3,8 @@ import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.j
 import { Renderer } from "./engine/renderer.js";
 import { Shape } from "./engine/shape.js";
 import { MapMaker } from "./map.js";
+import { Vector } from "./engine/vector.js";
+import { Snowball } from "./snowball.js";
 
 export class Ember implements SubObject {
     kind: string;
@@ -16,7 +18,60 @@ export class Ember implements SubObject {
     }
 }
 
+export class Icicle implements SubObject {
+    x: number;
+    y: number;
 
+    vertexes: number;
+    apothem: number;
+    priority: number;
+    fillStyle: string;
+
+    shape: Shape;
+
+    step: number;
+
+    h: number;
+    k: number;
+
+    a: number;
+
+    stopped: boolean;
+
+    constructor(starting_point: Point, parabola: Parabola, direction: number) {
+        this.x = starting_point.x;
+        this.y = starting_point.y;
+
+        this.stopped = false;
+
+        this.shape = "polygon";
+
+        this.vertexes = 6;
+        this.apothem = 15;
+
+        this.fillStyle = "rgba(137, 137, 235, 1)";
+
+        this.priority = 3;
+
+        this.h = parabola.h;
+        this.k = parabola.k;
+
+        this.a = parabola.a;
+
+        this.step = direction;
+
+    }
+
+    updatePosition() {
+        if (this.stopped) return;
+
+        this.x = this.x + this.step;
+
+        this.y = this.a * Math.pow(this.x - this.h,2) + this.k;
+    }
+
+
+}
 
 export class Chunk implements NoneRenderable {
     static readonly CHUNK_HEIGHT = 330;
@@ -34,7 +89,7 @@ export class Chunk implements NoneRenderable {
 
     campfires: SubObject[][];
 
-    projectiles: SubObject[][];
+    icicles: Icicle[];
 
     embers: Ember[][];
 
@@ -101,7 +156,7 @@ export class Chunk implements NoneRenderable {
         this.campfires = [];
         this.embers = [];
         this.trees = [];
-        this.projectiles = [];
+        this.icicles = [];
 
         this.has_fired = false;
 
@@ -113,12 +168,21 @@ export class Chunk implements NoneRenderable {
         this.generateChunk(x, y, width);
     }
 
+    inChunk(point: Point): boolean {
+        const LAYER_HEIGHT = MapMaker.VERTICAL_CHUNK_FACTOR;
+
+        const LAYER_WIDTH = MapMaker.HORIZONTAL_CHUNK_FACTOR;
+
+        return (point.x < this.x + LAYER_WIDTH && point.x >= this.x) && (point.y <= this.y && point.y > this.y - LAYER_HEIGHT);
+
+    }
+
     isHalfWay(point: Point): boolean {
         const CHUNK_HEIGHT = Chunk.CHUNK_HEIGHT;
         const LAYER_HEIGHT = MapMaker.VERTICAL_CHUNK_FACTOR;
 
         if (point.y > this.y - CHUNK_HEIGHT  || point.y < this.y - LAYER_HEIGHT) return false;
-        if (Math.abs((this.y - CHUNK_HEIGHT - (LAYER_HEIGHT - CHUNK_HEIGHT)/2) - point.y) > 50) return false;
+        if (Math.abs((this.y - CHUNK_HEIGHT - (LAYER_HEIGHT - CHUNK_HEIGHT)/2) - point.y) > 150) return false;
 
         return true;
     }
@@ -138,8 +202,8 @@ export class Chunk implements NoneRenderable {
             this.renderparts.push(...tree);
         }
 
-        for (const projectile of this.projectiles) {
-            this.renderparts.push(...projectile)
+        for (const projectile of this.icicles) {
+            this.renderparts.push(projectile)
         }
 
         for (const ember of this.embers) {
@@ -152,12 +216,23 @@ export class Chunk implements NoneRenderable {
             }
         }
 
+        for (const projectile of this.icicles) {
+            projectile.updatePosition();
+        }
+
         const follow_point = this.renderer.getFollowPoint();
-        if (this.isHalfWay(follow_point) && !this.has_fired) {
-            this.has_fired = true;
 
-            this.projectiles.push;
+        if (this.inChunk(follow_point) && this.isHalfWay(follow_point) && !this.has_fired) {
+            const screen_edge = follow_point.add(new Vector(this.renderer.getCanvas().width/2, 200));
 
+            //Only create the icicle if it's not too low.
+            if (this.isHalfWay(screen_edge)) {
+                this.has_fired = true;
+
+                const icicle = new Icicle(screen_edge, Chunk.getParabola(follow_point.add(new Vector(0, this.renderer.fps * 3)), screen_edge), -10);
+
+                this.icicles.push(icicle);
+            }
         }
     }
 
@@ -171,9 +246,29 @@ export class Chunk implements NoneRenderable {
         this.renderer.removeObject(this);
     }
 
-    collision(otherObject: BaseRenderable, subObject?: SubObject): void {
+    collision(otherObject: BaseRenderable, subObject?: SubObject, childObject?: SubObject): void {
+        if (childObject && childObject instanceof Icicle && !(otherObject instanceof Snowball || otherObject instanceof Icicle)) {
+            childObject.stopped = true;
+        }
+    }
 
+    /**
+     * @param point_one
+     * @param point_two
+     */
+    static getParabola(point_one: Point, point_two: Point): Parabola {
+        const parabola = {h: point_one.x, k: point_one.y, a: Infinity};
+
+        parabola.a = (-parabola.k + point_two.y) / Math.pow(point_two.x - parabola.h, 2);
+
+        return parabola;
     }
 
 
+}
+
+interface Parabola {
+    h: number;
+    k: number;
+    a: number;
 }
