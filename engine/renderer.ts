@@ -51,8 +51,8 @@ export class Renderer {
     getRenderables() {
         let renderObjects: (BaseRenderable | SubObject)[] = []
         for (let object of this.objects) {
-            if (object.shape != null) {
-                renderObjects.push(object)
+            if (object.shape != null || object.shape != "none") {
+                renderObjects.push(object);
             }
 
             //Appends renderparts if it exists

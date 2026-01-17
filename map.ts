@@ -54,15 +54,15 @@ export class MapMaker implements NoneRenderable {
 
         for (let x of this.chunks.keys()) {
             for (let y of this.chunks.get(x).keys()) {
-                if (x > cx + 2 || x < cx - 2 || y > cy + 2 || y < cy - 2) {
+                if (x > cx + 2 || x < cx - 1 || y > cy + 1 || y < cy - 1) {
                     this.chunks.get(x).get(y).destruct();
                     this.chunks.get(x).delete(y);
                 }
             }
         }
 
-        for (let i = cx - 2; i < cx + 3; i++) {
-            for (let j = cy - 2; j < cy + 3; j++) {
+        for (let i = cx - 1; i < cx + 3; i++) {
+            for (let j = cy - 1; j < cy + 2; j++) {
                 if (!this.chunks.get(i)) {
                     this.chunks.set(i, new Map<number, Chunk>());
                 }
