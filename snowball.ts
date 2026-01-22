@@ -6,6 +6,7 @@ import { Ember } from "./chunk.js";
 import { Point } from "./engine/point.js";
 import { Vector } from "./engine/vector.js";
 import { Icicle } from "./chunk.js";
+import { River } from "./river.js";
 
 class Shard implements SubObject {
     x: number;
@@ -87,6 +88,8 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
     shattered?: boolean;
     shards?: Shard[];
 
+    mounted: boolean;
+
     constructor(public x: number, public y: number, renderer: Renderer, isplayer: boolean) {
         renderer.addObject(this);
         this.shape = "circle";
@@ -102,6 +105,8 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
         this.nocollide = false;
         this.shattered = false;
         this.isplayer = isplayer;
+
+        this.mounted = false;
     }
 
     update(): void {
@@ -141,12 +146,12 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
     }
 
     collision(otherObject: BaseRenderable, subObject?: SubObject, childObject?: SubObject): void {
-        //No collisions with other snowballs, burnt embers, and shards with embers or wih icicles.
+        //No collisions with other snowballs, burnt embers, and shards with embers or wih icicles, or with rivers when mounted
         if (otherObject instanceof Snowball) return;
         if (subObject && subObject instanceof Ember && subObject.burnt) return;
         if (subObject && subObject instanceof Ember && childObject && childObject instanceof Shard) return;
         if (subObject && subObject instanceof Icicle && childObject && childObject instanceof Shard) return;
-
+        if (otherObject instanceof River && this.mounted) return;
 
         if (subObject && (subObject instanceof Ember || subObject instanceof Icicle ) && !(childObject instanceof Shard)) {
             this.shape = "none";
@@ -173,6 +178,15 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
 
             return;
         }
+
+        if (otherObject instanceof River && !(childObject instanceof Shard) && !this.mounted) {
+            this.mounted = true;
+            this.vy = 0;
+            this.vx = River.RIVER_SPEED;
+            this.y += River.RIVER_HEIGHT/2;
+            return;
+        }
+
         this.vx = 0;
         this.vy = 0;
     }
@@ -183,6 +197,8 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
         if (this.nocollide) return;
 
         if (!this.isplayer) return;
+
+        if (this.mounted) return;
 
         if (ev.key == "ArrowLeft") {
             this.vx -= 1;
