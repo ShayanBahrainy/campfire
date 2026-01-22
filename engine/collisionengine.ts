@@ -91,6 +91,10 @@ export class CollisionEngine {
             return false;
         }
 
+        if (first.shape == "line" || second.shape == "line") {
+            return false;
+        }
+
         if (first.shape == "circle" && second.shape == "circle") {
             const circle_one = first as CircleRenderable;
             const circle_second = second as CircleRenderable;

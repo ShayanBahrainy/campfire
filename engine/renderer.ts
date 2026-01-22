@@ -101,7 +101,7 @@ export class Renderer {
             if (object.shape == "line") {
                 const line = object as LineRenderable;
                 render.type = "line";
-                render.end = line.end;
+                render.end = line.end.copy();
                 render.width = line.width;
             }
 
@@ -304,6 +304,10 @@ export class Renderer {
                 if (component.screenpositioning) continue;
                 component.x -= this.camera_follow.x - this.canvas.width/2;
                 component.y -= this.camera_follow.y - this.canvas.height/2;
+                if (component.type == "line") {
+                    component.end.y -= this.camera_follow.y - this.canvas.height/2;
+                    component.end.x -= this.camera_follow.x - this.canvas.width/2;
+                }
             }
         }
 
