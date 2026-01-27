@@ -236,12 +236,12 @@ export class Chunk implements NoneRenderable {
         }
     }
 
-
+    /** Removes Chunk from render queue, and cleans up all associated objects. */
     destruct(): void {
-        delete this.renderparts;
-        delete this.campfires;
-        delete this.embers;
-        delete this.trees;
+        this.renderparts = null;
+        this.campfires = null;
+        this.embers = null;
+        this.trees = null;
 
         this.renderer.removeObject(this);
     }
