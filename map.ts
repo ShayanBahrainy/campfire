@@ -89,6 +89,7 @@ export class MapMaker implements NoneRenderable {
         }
 
         for (const [k,river] of this.rivers) {
+            if (!river) continue;
             if (Math.abs(Math.floor(river.y / MapMaker.VERTICAL_CHUNK_FACTOR) - cy) > 2) {
                 river.destruct();
             }
