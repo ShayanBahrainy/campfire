@@ -18,7 +18,4 @@ window.addEventListener("DOMContentLoaded", function () {
     const player_snowball = new Snowball(renderer.canvas.width / 2, 0, renderer, true);
 
     renderer.cameraFollow(player_snowball);
-
-    new River(0, 0, renderer);
-
 })
