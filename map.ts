@@ -1,6 +1,7 @@
 import { Chunk } from "./chunk.js";
 import { BaseRenderable, NoneRenderable, SubObject } from "./engine/renderable.js";
 import { Renderer } from "./engine/renderer.js";
+import { River } from "./river.js";
 
 export class MapMaker implements NoneRenderable {
     static readonly VERTICAL_CHUNK_FACTOR = 800;
@@ -22,6 +23,8 @@ export class MapMaker implements NoneRenderable {
 
     chunks: Map<number, Map<number, Chunk>>;
 
+    rivers: Map<number, River>;
+
     constructor(renderer: Renderer) {
 
         this.chunks = new Map<number, Map<number, Chunk>>();
@@ -40,6 +43,8 @@ export class MapMaker implements NoneRenderable {
         this.priority = 2;
 
         this.fillStyle = "";
+
+        this.rivers = new Map<number, River>();
     }
 
     update(): void {
@@ -50,6 +55,15 @@ export class MapMaker implements NoneRenderable {
 
         if (cx == this.prevcx && cy == this.prevcy) {
             return;
+        }
+
+        if (this.rivers.get(cy + 1) === undefined) {
+            if (this.renderer.generateRandom((cy + 1) * MapMaker.VERTICAL_CHUNK_FACTOR, (cy + 1) * MapMaker.VERTICAL_CHUNK_FACTOR) % 5 == 0) {
+                this.rivers.set(cy + 1, new River((cy + 1) * MapMaker.VERTICAL_CHUNK_FACTOR, this.renderer));
+            }
+            else {
+                this.rivers.set(cy + 1, null);
+            }
         }
 
         for (let x of this.chunks.keys()) {
@@ -68,9 +82,17 @@ export class MapMaker implements NoneRenderable {
                 }
 
                 if (!this.chunks.get(i).get(j)) {
-                    this.chunks.get(i).set(j, new Chunk(this.renderer, i * MapMaker.HORIZONTAL_CHUNK_FACTOR, j * MapMaker.VERTICAL_CHUNK_FACTOR, MapMaker.HORIZONTAL_CHUNK_FACTOR));
+                    //!! coerces to bool
+                    this.chunks.get(i).set(j, new Chunk(this.renderer, i * MapMaker.HORIZONTAL_CHUNK_FACTOR, j * MapMaker.VERTICAL_CHUNK_FACTOR, MapMaker.HORIZONTAL_CHUNK_FACTOR, !!this.rivers.get(i)));
                 }
             }
+        }
+
+        for (const [k,river] of this.rivers) {
+            if (Math.abs(Math.floor(river.y / MapMaker.VERTICAL_CHUNK_FACTOR) - cy) > 2) {
+                river.destruct();
+            }
+            this.rivers.delete(k);
         }
 
         this.prevcx = cx;
