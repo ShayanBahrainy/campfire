@@ -58,6 +58,7 @@ export class Renderer {
             //Appends renderparts if it exists
             renderObjects = [...renderObjects, ...object.renderparts??[]]
         }
+
         renderObjects = Renderer.sortObjects(renderObjects)
         let data = []
         let dominant: RenderComponent | undefined
@@ -130,8 +131,7 @@ export class Renderer {
         this.canvas.height = document.documentElement.clientHeight;
         this.collisionChecks();
         let renderObjects = Renderer.sortObjects(this.objects);
-        for (let key in renderObjects) {
-            let object = renderObjects[key];
+        for (let object of renderObjects) {
             object.update();
         }
         this.draw(this.getRenderables());
@@ -432,12 +432,18 @@ export class Renderer {
             const listener = object as any as RecieveKeyPress;
             window.addEventListener("keydown", listener);
         }
+
         this.objects.push(object);
     }
+
     static sortObjects(objects: BaseRenderable[]): BaseRenderable[];
     static sortObjects(objects: (BaseRenderable | SubObject)[]): (BaseRenderable | SubObject)[];
     static sortObjects(objects: any[]): any[] {
-        return objects.sort((a, b) => a.priority - b.priority);
+        return objects.sort(function (a, b) {
+            const aPriority = a.priority ?? 0;
+            const bPriority = b.priority ?? 0;
+            return aPriority - bPriority;
+        });
     }
 
     private static DegreesToRadians(degrees: number): number {
