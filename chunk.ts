@@ -97,7 +97,11 @@ export class Chunk implements NoneRenderable {
 
     renderparts?: SubObject[];
 
+    is_river?: boolean;
+
     has_fired: boolean;
+
+
 
     private generateChunk(x: number, y: number, width: number): void {
         let generateFloat: (a: number, b: number) => number = this.renderer.generateFloat.bind(this.renderer);
@@ -140,16 +144,17 @@ export class Chunk implements NoneRenderable {
             let tree: SubObject[] = [
                 //Stem of tree is unreachable, so don't do collisions to optimize
                 {x: i - 20, y: y - 200, height: 200, width: 20, priority: 0, shape: "rectangle" as Shape, fillStyle: "rgb(93, 52, 0)", nocollide: true},
-                {x: i - 5, y: y - 240, apothem: 90, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
-                {x: i - 5, y: y - 180, apothem: 120, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90},
-                {x: i - 5, y: y - 100, apothem: 150, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 2, rotation: 90}
+                {x: i - 5, y: y - 240, apothem: 90, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 3, rotation: 90},
+                {x: i - 5, y: y - 180, apothem: 120, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 3, rotation: 90},
+                {x: i - 5, y: y - 100, apothem: 150, shape: "polygon" as Shape, vertexes: 3, fillStyle: "rgba(23, 86, 23, 1)", priority: 3, rotation: 90}
             ]
+
             this.trees.push(tree)
         }
     }
 
 
-    constructor(renderer: Renderer, x: number, y: number, width: number) {
+    constructor(renderer: Renderer, x: number, y: number, width: number, is_river: boolean) {
         renderer.addObject(this);
         this.renderer = renderer;
 
@@ -164,6 +169,10 @@ export class Chunk implements NoneRenderable {
         this.y = y;
 
         this.shape = "none";
+
+        this.is_river = is_river;
+
+        this.priority = 0;
 
         this.generateChunk(x, y, width);
     }
@@ -222,7 +231,7 @@ export class Chunk implements NoneRenderable {
 
         const follow_point = this.renderer.getFollowPoint();
 
-        if (this.inChunk(follow_point) && this.isHalfWay(follow_point) && !this.has_fired) {
+        if (!this.is_river && this.inChunk(follow_point) && this.isHalfWay(follow_point) && !this.has_fired && ((this.renderer.generateRandom(this.x, this.y) << 13) % 10 == 0)) {
             const screen_edge = follow_point.add(new Vector(this.renderer.getCanvas().width/2, 200));
 
             //Only create the icicle if it's not too low.
@@ -234,6 +243,7 @@ export class Chunk implements NoneRenderable {
                 this.icicles.push(icicle);
             }
         }
+
     }
 
     /** Removes Chunk from render queue, and cleans up all associated objects. */
