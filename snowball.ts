@@ -64,6 +64,8 @@ class Shard implements SubObject {
 
 
 export class Snowball implements BaseRenderable, RecieveKeyPress {
+    public static readonly VERTICAL_SPEED = 2;
+    public static readonly HORIZONTAL_SPEED = 0.1;
 
     private vx: number;
     private vy: number;
@@ -93,10 +95,10 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
     constructor(public x: number, public y: number, renderer: Renderer, isplayer: boolean) {
         renderer.addObject(this);
         this.shape = "circle";
-        this.vx = 0.1;
-        this.vy = 2;
+        this.vx = Snowball.HORIZONTAL_SPEED;
+        this.vy = Snowball.VERTICAL_SPEED;
         this.fillStyle = "rgb(255,255,255)"
-        this.priority = 5;
+        this.priority = 10;
         this.renderer = renderer;
 
         this.radius = 10;
@@ -145,6 +147,24 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
         }
     }
 
+    toggleMount()  {
+        //Either way jump down, but jump down more to add a small distance between river and snowball to prevent remounting
+        if (!this.mounted) {
+            this.y += River.RIVER_HEIGHT/2;
+            this.vy = 0;
+            this.vx = River.RIVER_SPEED;
+        }
+        else {
+            this.y += River.RIVER_HEIGHT/2 + (this.radius * 2 + 1);
+            this.vy = Snowball.VERTICAL_SPEED;
+            this.vx = Snowball.HORIZONTAL_SPEED;
+        }
+
+
+
+        this.mounted = !this.mounted;
+    }
+
     collision(otherObject: BaseRenderable, subObject?: SubObject, childObject?: SubObject): void {
         //No collisions with other snowballs, burnt embers, and shards with embers or wih icicles, or with rivers when mounted
         if (otherObject instanceof Snowball) return;
@@ -180,10 +200,7 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
         }
 
         if (otherObject instanceof River && !(childObject instanceof Shard) && !this.mounted) {
-            this.mounted = true;
-            this.vy = 0;
-            this.vx = River.RIVER_SPEED;
-            this.y += River.RIVER_HEIGHT/2;
+            this.toggleMount();
             return;
         }
 
@@ -198,14 +215,16 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
 
         if (!this.isplayer) return;
 
-        if (this.mounted) return;
-
-        if (ev.key == "ArrowLeft") {
+        if (ev.key == "ArrowLeft" && !this.mounted) {
             this.vx -= 1;
         }
 
-        if (ev.key == "ArrowRight") {
+        if (ev.key == "ArrowRight" && !this.mounted) {
             this.vx += 1;
+        }
+
+        if (ev.key == "ArrowDown" && this.mounted) {
+            this.toggleMount();
         }
     }
 }
