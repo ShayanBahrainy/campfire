@@ -124,7 +124,7 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
             this.renderparts.push(...[{x:20, y:0, text: (Math.floor(this.y / 1000) * 1000).toString(), shape: "rectangle" as Shape, width: 0, height: 0, fillStyle: "rgb(255, 255, 255)", priority: 5, screenpositioning: true}]);
         }
 
-        if (this.shattered) {
+        if (this.shattered && this.shards) {
             for (const shard of this.shards) {
                 if (shard.keepMoving) {
                     shard.updatePosition(45, new Point(this.x, this.y));
@@ -181,7 +181,7 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
             return;
         }
 
-        if (!(subObject && subObject instanceof Ember) && childObject && childObject instanceof Shard) {
+        if (!(subObject && subObject instanceof Ember) && childObject && childObject instanceof Shard && this.shards) {
             childObject.keepMoving = false;
 
             let allStopped = true;
@@ -215,15 +215,15 @@ export class Snowball implements BaseRenderable, RecieveKeyPress {
 
         if (!this.isplayer) return;
 
-        if (ev.key == "ArrowLeft" && !this.mounted) {
+        if (["A", "a", "ArrowLeft"].indexOf(ev.key) > -1 && !this.mounted) {
             this.vx -= 1;
         }
 
-        if (ev.key == "ArrowRight" && !this.mounted) {
+        if (["D", "d", "ArrowRight"].indexOf(ev.key) > -1 && !this.mounted) {
             this.vx += 1;
         }
 
-        if (ev.key == "ArrowDown" && this.mounted) {
+        if (["S", "s", "ArrowDown"].indexOf(ev.key) > -1 && this.mounted) {
             this.toggleMount();
         }
     }

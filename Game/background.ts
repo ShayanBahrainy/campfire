@@ -21,6 +21,7 @@ export class Background implements NoneRenderable {
         this.shape = "none";
         this.x = 0;
         this.y = 0;
+        this.fillStyle = "";
         this.renderparts = [
             //Sky
             ...[

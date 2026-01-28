@@ -23,7 +23,7 @@ export class Renderer {
 
     private camera_mode: CameraMode;
 
-    private camera_follow: BaseRenderable;
+    private camera_follow?: BaseRenderable;
 
     private rand_seed: number;
 
@@ -33,6 +33,8 @@ export class Renderer {
         Renderer.instance = this;
 
         this.canvas = document.createElement("canvas");
+        this.canvas.width = 800;
+        this.canvas.height = 600;
         document.body.appendChild(this.canvas);
 
         this.tick = this.tick.bind(this);
@@ -127,8 +129,8 @@ export class Renderer {
 
 
     tick() {
-        this.canvas.width = document.documentElement.clientWidth;
-        this.canvas.height = document.documentElement.clientHeight;
+        //this.canvas.width = document.documentElement.clientWidth;
+        //this.canvas.height = document.documentElement.clientHeight;
         this.collisionChecks();
         let renderObjects = Renderer.sortObjects(this.objects);
         for (let object of renderObjects) {
@@ -213,7 +215,7 @@ export class Renderer {
                 VerticalLength -= (ceheight! + crheight!)/2
 
                 if (HorizontonalLength <= 0 && VerticalLength <= 0) {
-                    ( isSubObject(collider) ? collider._parent : collider ).collision(( isSubObject(collidee) ? collidee._parent : collidee), (isSubObject(collidee) ? collidee : undefined));
+                    ( isSubObject(collider) ? collider._parent : collider )!.collision(( isSubObject(collidee) ? collidee._parent : collidee)!, (isSubObject(collidee) ? collidee : undefined));
                 }
             }
         }
@@ -247,17 +249,17 @@ export class Renderer {
                 }
                 //Include any of the 4 neighboring quadrants IF they exist.
                 let neighbors: (BaseRenderable|SubObject)[] = [...SpatialMap[X][Y]];
-                if (SpatialMap[String(Number(X) - 1)] && SpatialMap[String(Number(X) - 1)][Y]) {
-                    neighbors.push(...SpatialMap[String(Number(X) - 1)][Y])
+                if (SpatialMap[(Number(X) - 1)] && SpatialMap[(Number(X) - 1)][Y]) {
+                    neighbors.push(...SpatialMap[(Number(X) - 1)][Y])
                 }
-                if (SpatialMap[String(Number(X) + 1)] && SpatialMap[String(Number(X) + 1)][Y]) {
-                    neighbors.push(...SpatialMap[String(Number(X) + 1)][Y])
+                if (SpatialMap[(Number(X) + 1)] && SpatialMap[(Number(X) + 1)][Y]) {
+                    neighbors.push(...SpatialMap[(Number(X) + 1)][Y])
                 }
-                if (SpatialMap[X][String(Number(Y) - 1)]) {
-                    neighbors.push(...SpatialMap[X][String(Number(Y) - 1)])
+                if (SpatialMap[X][(Number(Y) - 1)]) {
+                    neighbors.push(...SpatialMap[X][(Number(Y) - 1)])
                 }
-                if (SpatialMap[X][String(Number(Y) + 1)]) {
-                    neighbors.push(...SpatialMap[X][String(Number(Y) + 1)])
+                if (SpatialMap[X][(Number(Y) + 1)]) {
+                    neighbors.push(...SpatialMap[X][(Number(Y) + 1)])
                 }
 
                 for (let a of neighbors) {
@@ -265,7 +267,7 @@ export class Renderer {
                         if (a == b) continue;
 
                         if (this.collision_engine.SAT(a, b)) {
-                            ( isSubObject(a) ? a._parent : a ).collision(( isSubObject(b) ? b._parent : b), (isSubObject(b) ? b : undefined), (isSubObject(a) ? a : undefined));
+                            ( isSubObject(a) ? a._parent : a )!.collision(( isSubObject(b) ? b._parent : b)!, (isSubObject(b) ? b : undefined), (isSubObject(a) ? a : undefined));
                         }
 
                     }
@@ -295,23 +297,23 @@ export class Renderer {
 
     cameraFixed() {
         this.camera_mode = CameraMode.fixed;
-        this.camera_follow = null;
+        this.camera_follow = undefined;
     }
 
     draw(renderData: RenderComponent[]) {
         if (this.camera_mode == CameraMode.follow) {
             for (const component of renderData) {
                 if (component.screenpositioning) continue;
-                component.x -= this.camera_follow.x - this.canvas.width/2;
-                component.y -= this.camera_follow.y - this.canvas.height/2;
+                component.x -= this.camera_follow!.x - this.canvas.width/2;
+                component.y -= this.camera_follow!.y - this.canvas.height/2;
                 if (component.type == "line") {
-                    component.end.y -= this.camera_follow.y - this.canvas.height/2;
-                    component.end.x -= this.camera_follow.x - this.canvas.width/2;
+                    component.end!.y -= this.camera_follow!.y - this.canvas.height/2;
+                    component.end!.x -= this.camera_follow!.x - this.canvas.width/2;
                 }
             }
         }
 
-        let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d")
+        let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D();
         for (let object of renderData) {
             ctx.resetTransform();
 
@@ -371,7 +373,7 @@ export class Renderer {
             throw new Error("Attempt to retrieve follow point when camera mode is not follow.");
         }
 
-        return new Point(this.camera_follow.x, this.camera_follow.y);
+        return new Point(this.camera_follow!.x, this.camera_follow!.y);
     }
 
     getCanvas() {
@@ -453,12 +455,12 @@ export class Renderer {
     static getRectanglePoints(rectangle: RectangleRenderable | RenderComponent) {
         let points: Point[] = [];
 
-        let untranslatedPoints: Point[] = [new Point(-rectangle.width/2, -rectangle.height/2), new Point(-rectangle.width/2, rectangle.height/2), new Point(rectangle.width/2, rectangle.height/2), new Point(rectangle.width/2, -rectangle.height/2)];
+        let untranslatedPoints: Point[] = [new Point(-rectangle.width!/2, -rectangle.height!/2), new Point(-rectangle.width!/2, rectangle.height!/2), new Point(rectangle.width!/2, rectangle.height!/2), new Point(rectangle.width!/2, -rectangle.height!/2)];
 
         let rotation = this.DegreesToRadians(rectangle.rotation ? rectangle.rotation : 0);
 
-        const cx = rectangle.x + rectangle.width/2;
-        const cy = rectangle.y + rectangle.height/2;
+        const cx = rectangle.x + rectangle.width!/2;
+        const cy = rectangle.y + rectangle.height!/2;
 
         const rotationMatrix = [
             [Math.cos(rotation), -Math.sin(rotation)],

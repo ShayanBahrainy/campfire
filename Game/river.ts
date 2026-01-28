@@ -3,7 +3,6 @@ import { MapMaker } from "./map.js";
 import { Renderer } from "./engine/renderer.js";
 import { Point } from "./engine/point.js";
 import { Shape } from "./engine/shape.js";
-import { Chunk } from "./chunk.js";
 
 export class River implements NoneRenderable {
     static readonly RIVER_HEIGHT = 200;
@@ -50,6 +49,7 @@ export class River implements NoneRenderable {
         this.linetimer = this.linetime;
 
         this.y = y;
+        this.x = -Infinity;
 
         this.line_y = this.y + 110;
         this.delta_line_y = 50;
@@ -151,7 +151,7 @@ export class River implements NoneRenderable {
     destruct() {
         this.renderer.removeObject(this);
 
-        this.lines = null;
-        this.renderparts = null;
+        this.lines = [];
+        this.renderparts = [];
     }
 }
