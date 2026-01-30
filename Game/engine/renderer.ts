@@ -33,8 +33,7 @@ export class Renderer {
         Renderer.instance = this;
 
         this.canvas = document.createElement("canvas");
-        this.canvas.width = 800;
-        this.canvas.height = 600;
+
         document.body.appendChild(this.canvas);
 
         this.tick = this.tick.bind(this);
@@ -129,8 +128,8 @@ export class Renderer {
 
 
     tick() {
-        //this.canvas.width = document.documentElement.clientWidth;
-        //this.canvas.height = document.documentElement.clientHeight;
+        this.canvas.width = document.documentElement.clientWidth;
+        this.canvas.height = document.documentElement.clientHeight;
         this.collisionChecks();
         let renderObjects = Renderer.sortObjects(this.objects);
         for (let object of renderObjects) {
