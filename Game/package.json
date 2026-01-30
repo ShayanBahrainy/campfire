@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
+    "build-extension": "npx tsc && rsync -a --delete dist/ ../Extension/dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Shayan",
