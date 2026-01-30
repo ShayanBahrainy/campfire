@@ -1,3 +1,6 @@
+<img src="screenshot.png" alt="Screenshot of Campfire" width="678" height="500">
+
+
 # Campfire
 This is a game I made where you play as a Snowball falling in a forest. Your goal is to dodge various obstacles (fires, trees, etc.) I built this in Typescript, porting over my JavaScript core from Sean's Game. I spent a significant time reworking the collision detection to be more efficient, and reliable. Now, it supports any combination of convex polygons, rectangles, and circles.
 
